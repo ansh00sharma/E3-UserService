@@ -16,15 +16,19 @@ Completed On :
  
    <b>python -m venv environment_name</b> (for example myenv, which i have used in the project)
 
-2. Create Django-project, django-apps
+2. Activate the Environment you created in step 1
+ 
+   <b>.\myenv\Scripts\activate</b> (your cmd should change from C:\ to (myenv) C:\)
+
+3. Create Django-project, django-apps
 
    <b>django-admin createproject project_name</b> (for example project, which i have used in the project)
 
-3. To collect staticfiles for production environment
+4. To collect staticfiles for production environment
 
    <b>python manage.py collectstatic</b>
 
-4. Do migrations first (by default it will use sqlite, but you can always choose that like I am using Postgres, check project>settings.py>DATABASES)
+5. Do migrations first (by default it will use sqlite, but you can always choose that like I am using Postgres, check project>settings.py>DATABASES)
  
    <b>python manage.py makemigrations</b> (this creates the migration file of your models)
    

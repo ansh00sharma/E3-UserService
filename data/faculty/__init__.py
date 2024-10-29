@@ -1,0 +1,1 @@
+from .facultyByIdData import getFaculty

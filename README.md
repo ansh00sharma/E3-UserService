@@ -1,4 +1,4 @@
-### Project Name : Student Leaderboard
+### Project Name : Student users
 # This is a Student's Academic LearderBoard Project
 
 
@@ -26,7 +26,7 @@ Completed On :
    
 4. To Create Django-project from scratch 
 
-   <b>django-admin startproject project_name</b> (for example leaderboard, which I have used in the project)
+   <b>django-admin startproject project_name</b> (for example users, which I have used in the project)
 
 5. To collect staticfiles for production environment
 

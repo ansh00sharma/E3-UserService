@@ -1,1 +1,0 @@
-from .facultyDataSerializer import FacultySerializer

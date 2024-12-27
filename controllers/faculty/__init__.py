@@ -1,1 +1,0 @@
-from .facultyByIdController import validateRequest

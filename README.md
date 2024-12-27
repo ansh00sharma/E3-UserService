@@ -41,3 +41,7 @@ Completed On :
 7. To Create a superuser for django-admin (using this superuser username and password you can access django-admin)
 
    <b>python manage.py createsuperuser</b>
+
+8. To Run django server
+
+   <b>python manage.py runserver </b>

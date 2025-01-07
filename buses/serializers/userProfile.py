@@ -4,6 +4,7 @@ from users.models import User
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from buses.utils.sendEmail import Util
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,7 +42,13 @@ class UserSendResetPasswordSerializer(serializers.Serializer):
             uid = urlsafe_base64_encode(force_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
             link = 'http://localhost:8000/user/resetpassword/'+uid+'/'+token+'/'
+            data={
+                'subject':"Link to Reset Your Password for PersonalAi Account",
+                'body':'Click the following Link to Reset your Password '+ link,
+                'to':user.email
+            }
             print('link : ', link)
+            Util.send_email(data)
             return attrs
         else:
             raise serializers.ValidationError("This is not a Registered Email")

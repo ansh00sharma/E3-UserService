@@ -52,7 +52,7 @@ class User(AbstractBaseUser):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.name
+        return self.email
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"
@@ -69,3 +69,15 @@ class User(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+    
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    image_1 = models.BinaryField(null=True, blank=True)
+    image_2 = models.BinaryField(null=True, blank=True)
+    image_3 = models.BinaryField(null=True, blank=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user.email

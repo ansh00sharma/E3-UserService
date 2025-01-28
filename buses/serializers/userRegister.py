@@ -9,12 +9,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ['email','name','phone_number','gender','password','confirm_password']
 
     def validate(self,data):
+        print("inside validate")
         password = data.get('password')
         confirm_password = data.get('confirm_password')
 
         if password != confirm_password:
             raise serializers.ValidationError("Password's Doesn't Match")
-       
+
         return data
 
     def create(self, validate_data):

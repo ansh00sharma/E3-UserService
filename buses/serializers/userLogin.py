@@ -21,7 +21,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
     def get_user(self,data):  
         user = authenticate(email=data.get('email'), password=data.get('password'))
         if user is None:
-            raise serializers.ValidationError("Email or Password is not Valid")
+            return
             
         return user
     

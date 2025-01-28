@@ -10,5 +10,7 @@ urlpatterns = [
     path('sendresetpassword/', sendresetPassword, name="sendresetpassword"),
     path('resetpassword/<uid>/<token>/', resetPassword, name="resetpassword"),
     path('imagelogin/', userLoginByImage, name="imagelogin"),
+    path('sendloginotp/', sendOtpForLogin, name="sendotp"),
+    path('verifyloginotp/', verifyOtpForLogin, name="verifyotp"),
    
 ]

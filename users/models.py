@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
-
+import uuid
 # Create your models here.
 class UserManager(BaseUserManager):
     def create_user(self, email,name, phone_number, gender='M',password=None,confirm_password=None):
@@ -37,9 +37,10 @@ class User(AbstractBaseUser):
     email = models.EmailField(verbose_name="email address",max_length=255,unique=True)
     password = models.CharField(max_length=255, null=False, blank=False)
     name = models.CharField(max_length=20)
-    phone_number = models.CharField(max_length=15)
+    phone_number = models.CharField(max_length=15,unique=True)
     gender_choice = [('M','Male'),('F','Female'),('O','Others')]
     gender = models.CharField(max_length=1, choices=gender_choice, null=True)
+    uuid = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS= ["name","password","phone_number",]
@@ -71,10 +72,11 @@ class User(AbstractBaseUser):
         return self.is_admin
     
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    user =  models.ForeignKey(User, to_field="uuid", on_delete=models.CASCADE, db_column="user_id")
     image_1 = models.BinaryField(null=True, blank=True)
     image_2 = models.BinaryField(null=True, blank=True)
     image_3 = models.BinaryField(null=True, blank=True)
+    otp = models.CharField(max_length=6, blank=True,null=True)
 
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -12,8 +12,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-import dotenv
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,8 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
-# SECURITY WARNING: don't run with debug turned on in production!
+SECRET_KEY =os.getenv('SECRET_KEY')
+DJANGO_SETTINGS_MODULE =os.getenv('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -37,13 +40,17 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    # 'daphne'
     'django.contrib.staticfiles',
     # Internal Apps
     'users',
     # External Apps
+    'channels',
+    # 'daphne',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    
 
 
 ]
@@ -77,7 +84,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'main.wsgi.application'
+# WSGI_APPLICATION = 'main.wsgi.application'
+ASGI_APPLICATION = 'main.routing.application'
 
 
 # Database
@@ -128,7 +136,7 @@ SIMPLE_JWT = {
 
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
+    "USER_ID_FIELD": "uuid",
     "USER_ID_CLAIM": "user_id",
     "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
 
@@ -172,7 +180,7 @@ AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:8080",
-#     "http://127.0.0.1:9000",
+    "http://127.0.0.1:8000",
 ]
 
 # Internationalization
@@ -198,3 +206,12 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 PASSWORD_RESET_TIMEOUT=900  # 900sec = 15min for password reset token
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}

@@ -1,25 +1,26 @@
-import rest_framework
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,permission_classes
 from buses.serializers.userRegister import UserRegistrationSerializer
 from buses.serializers.userLogin import UserLoginSerializer
+from buses.serializers.sendOtp import SendOtpSerializer
+from buses.serializers.verifyOtp import VerifyOtpSerializer
 from buses.serializers.userProfile import*
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.exceptions import ValidationError
+from buses.utils.sendOtp import SendOtp
+from django.shortcuts import get_object_or_404
+import random
+from buses.utils.serializerErrorFormatter import format_serializer_errors
 from buses.serializers.responseRenderer import*
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from .models import*
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.files.base import ContentFile
 import face_recognition
-import base64
 from PIL import Image
 import io
 from io import BytesIO
-import time
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -32,25 +33,74 @@ def get_tokens_for_user(user):
 @api_view(['POST'])
 def userRegisteration(request):
     serializer = UserRegistrationSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
+    if serializer.is_valid():
         user = serializer.save() 
         token = get_tokens_for_user(user)
         return Response({"token":token,"message":'User Registered Successfully',"status":status.HTTP_201_CREATED})
-
+    else:
+        formatted_error = format_serializer_errors(serializer.errors)
+        print("Invalid serializer data:",formatted_error)
+        return Response({"message": formatted_error['message'], "status": status.HTTP_400_BAD_REQUEST})
+    
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
-    if created:  # Only create a profile for new users
+    if created:
         UserProfile.objects.create(user=instance)
 
 @api_view(['POST'])
 def userLogin(request):
     serializer = UserLoginSerializer(data=request.data)
-    user = serializer.is_valid(raise_exception=True)
-    if user is not None:
+
+    if serializer.is_valid():
         user = serializer.get_user(request.data)
-        token = get_tokens_for_user(user)
-        return Response({"token":token,"message":'Login Successfully',"status":status.HTTP_200_OK})
-    
+        if user is not None:
+            token = get_tokens_for_user(user)
+            return Response({"token":token,"message":'Login Successfully',"status":status.HTTP_200_OK})
+        else:
+            return Response({"message": "Email or Password is not Valid", "status": status.HTTP_400_BAD_REQUEST})
+    else:
+        formatted_error = format_serializer_errors(serializer.errors)
+        print("Invalid serializer data:",formatted_error)
+        return Response({"message": formatted_error['message'], "status": status.HTTP_400_BAD_REQUEST})
+
+@api_view(['POST'])
+def sendOtpForLogin(request):
+    data = request.data
+    serializer = SendOtpSerializer(data=request.data)
+    # print(data['phone_number'])
+    if serializer.is_valid():
+            user = serializer.validate_number(request.data)
+            if user:
+                otp = str(random.randint(100000, 999999))
+                print(user)
+                user_profile = UserProfile.objects.get(user__phone_number=user['phone_number'])
+                user_profile.otp = otp
+                user_profile.save()
+
+                messsage = "Mere Balka ka Maa Tanne I love You. Motalli......"
+                otp_handler = SendOtp(user['phone_number'],otp,messsage)
+                otp_handler.sendOtpOnNumber()
+                return Response({"message": "OTP for Login is send to your Registered Number", "status": status.HTTP_200_OK})
+            else:
+                return Response({"message": "This Number is not Registered", "status": status.HTTP_400_BAD_REQUEST})
+    else:
+        return Response({"message": "Enter Your Registered phone number", "status": status.HTTP_400_BAD_REQUEST})
+
+@api_view(['POST'])
+def verifyOtpForLogin(request):
+    serializer = VerifyOtpSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.verify_otp(request.data)    
+        if user == request.data:
+            return Response({"message":'Login Successfully',"status":status.HTTP_200_OK})
+        elif user == "OTP Not Matched":
+            return Response({"message":'Invalid OTP',"status": status.HTTP_400_BAD_REQUEST})
+        else:
+            return Response({"message":'User not Found',"status": status.HTTP_400_BAD_REQUEST})
+    else:
+        return Response({"message": "Enter Your Registered phone number", "status": status.HTTP_400_BAD_REQUEST})
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def userProfile(request):

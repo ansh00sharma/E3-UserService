@@ -45,3 +45,8 @@ Completed On :
 8. To Run django server
 
    <b>python manage.py runserver </b>
+
+
+daphene server : daphne -p 8080 main.routing:application
+docker redis   : docker run --name redis -p 6379:6379 -d redis
+django server  : python manage.py runserver 8080

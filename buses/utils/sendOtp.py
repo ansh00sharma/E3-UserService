@@ -19,7 +19,7 @@ class SendOtp:
         client = Client(account_sid, auth_token)
 
         message = client.messages.create(
-            body=f"{self.message} OTP for Log in is {self.otp}",
+            body=f"{self.message} is {self.otp}",
             from_=os.getenv('TWILIO_NUMBER'),
             to=f'+91{self.phone_number}'
         )

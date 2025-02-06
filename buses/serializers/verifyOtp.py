@@ -14,13 +14,12 @@ class VerifyOtpSerializer(serializers.ModelSerializer):
         otp = attrs.get("otp")
         try:
             user = get_object_or_404(User, phone_number=phone_number)
-            # print("user", user)
             user_profile = get_object_or_404(UserProfile, user__email=user)
-            # print("user_profile ", user_profile)
+            
             if user_profile.otp == otp:
                 user_profile.otp = None
                 user_profile.save()
-                return attrs
+                return user                      
             else:
                 return "OTP Not Matched"
         except:

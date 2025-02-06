@@ -2,6 +2,7 @@ from rest_framework import serializers
 from users.models import User
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.forms.models import model_to_dict
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)

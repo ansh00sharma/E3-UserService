@@ -15,4 +15,4 @@ class SendOtpSerializer(serializers.ModelSerializer):
         if user is None:
             return
             
-        return attrs
+        return user

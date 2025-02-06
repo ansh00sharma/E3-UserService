@@ -40,7 +40,7 @@ class User(AbstractBaseUser):
     phone_number = models.CharField(max_length=15,unique=True)
     gender_choice = [('M','Male'),('F','Female'),('O','Others')]
     gender = models.CharField(max_length=1, choices=gender_choice, null=True)
-    uuid = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    uuid = models.CharField(primary_key=True,default=uuid.uuid4,editable=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS= ["name","password","phone_number",]
@@ -53,7 +53,7 @@ class User(AbstractBaseUser):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.email
+        return self.uuid
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"
@@ -83,3 +83,16 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.email
+    
+class Token(models.Model):
+    uuid = models.CharField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User,on_delete=models.CASCADE, related_name="refresh_tokens")
+    token = models.TextField()
+    device_info = models.CharField(max_length=255, blank=True, null=True)  
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expired_at = models.DateTimeField(null=True, blank=True)
+    is_blacklisted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.token[:10]}..."

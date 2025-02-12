@@ -15,6 +15,10 @@ from buses.serializers.userLogin import UserLoginSerializer
 from buses.serializers.sendOtp import SendOtpSerializer
 from buses.serializers.verifyOtp import VerifyOtpSerializer
 from buses.serializers.userProfile import*
+from buses.serializers.addCategory import AddCategorySerializer
+from buses.serializers.getCategory import GetCategorySerializer
+from buses.serializers.addService import AddServiceSerializer
+from buses.serializers.getService import GetServiceSerializer,ServiceSerializer
 from buses.utils.sendOtp import SendOtp
 from buses.utils.serializerErrorFormatter import format_serializer_errors
 from buses.serializers.responseRenderer import*
@@ -75,9 +79,9 @@ def userLoginByEmail(request):
         if user is not None:
             # create UserService token for user
             token = get_tokens_for_user(request,user)
-        
+            user_data = serializer.format_user(user)
             log_status = log_user_action(request,user,"You Logged In via your Registered Email Successfully.")
-            response = Response({"access_token":token['access'],"message":'Login Successfully',"status":status.HTTP_200_OK, "logged":log_status})
+            response = Response({"access_token":token['access'],"user":user_data,"message":'Login Successfully',"status":status.HTTP_200_OK, "logged":log_status})
             response.set_cookie(key='refresh_token',value=token['refresh'],httponly=True,secure=True,samesite='Strict',max_age=15 * 24 * 60 * 60)  # 15 days in seconds)
             return response
         else:
@@ -237,6 +241,40 @@ def convert_binary_to_image(binary_data):
     except Exception as e:
         print(f"Error converting binary to image: {e}")
         return None
-    
 
+@api_view(['POST'])
+def addCategories(request):
+    serializer = AddCategorySerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()  # Saves the validated data to the database
+        return Response({"message": "New Category added successfully", "data": serializer.data,"status":status.HTTP_201_CREATED})
     
+    formatted_error = format_serializer_errors(serializer.errors)
+    return Response({"message": formatted_error['message'], "status": status.HTTP_400_BAD_REQUEST}) 
+
+@api_view(['GET'])
+def getCategories(request):
+    all_categories = ServiceCategory.objects.all()
+    serialized_data = GetCategorySerializer(all_categories, many=True).data
+    return Response({"message": serialized_data, "status": status.HTTP_200_OK})
+
+@api_view(['POST'])
+def addServiceToCategory(request):
+    serializer = AddServiceSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()  # Saves the validated data to the database
+        return Response({"message": "New Service added successfully", "data": serializer.data,"status":status.HTTP_201_CREATED})
+    
+    formatted_error = format_serializer_errors(serializer.errors)
+    return Response({"message": formatted_error['message'], "status": status.HTTP_400_BAD_REQUEST}) 
+
+@api_view(['POST'])
+def getServiceOfCategory(request):
+    serializer = GetServiceSerializer(data=request.data)
+    if serializer.is_valid():
+        all_categories = Service.objects.filter(category__uuid=request.data['uuid'])
+        serialized_data = ServiceSerializer(all_categories, many=True).data
+        return Response({"message": serialized_data, "status": status.HTTP_200_OK})
+    
+    formatted_error = format_serializer_errors(serializer.errors)
+    return Response({"message": formatted_error['message'], "status": status.HTTP_400_BAD_REQUEST})

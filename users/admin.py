@@ -3,6 +3,7 @@ from .models import*
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django import forms
 import base64
+from users.models import Service
 
 class UserAdmin(BaseUserAdmin):
     list_display = ["email", "name", "phone_number",'is_admin']
@@ -88,3 +89,5 @@ class UserProfileAdmin(admin.ModelAdmin):
 # Now register the new UserAdmin...
 admin.site.register(User, UserAdmin)
 admin.site.register(UserProfile,UserProfileAdmin)
+admin.site.register(ServiceCategory)
+admin.site.register(Service)

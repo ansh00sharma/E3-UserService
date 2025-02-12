@@ -96,3 +96,35 @@ class Token(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.token[:10]}..."
+
+class ServiceCategory(models.Model):
+    uuid = models.CharField(primary_key=True,default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=30)
+    description = models.TextField()
+    total_service = models.IntegerField(default=0)
+    active_users = models.IntegerField(default=0)
+    use_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "service_category"
+
+    def __str__(self):
+        return self.uuid
+    
+class Service(models.Model):
+    uuid = models.CharField(primary_key=True,default=uuid.uuid4, editable=False)
+    category = models.ForeignKey(ServiceCategory, on_delete=models.CASCADE, related_name="services")
+    name = models.CharField(max_length=30)
+    description = models.TextField()
+    active_users = models.IntegerField(default=0)
+    use_count = models.IntegerField(default=0)
+    price = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "service"
+
+    def __str__(self):
+        return self.uuid
+

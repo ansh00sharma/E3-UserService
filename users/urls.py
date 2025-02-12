@@ -13,5 +13,9 @@ urlpatterns = [
     path('imagelogin/', userLoginByImage, name="imagelogin"),
     path('sendloginotp/', UserLoginByContact, name="sendotp"),
     path('verifyloginotp/', verifyOtpForLogin, name="verifyotp"),
+    path('addcategories/', addCategories,name="addcategories",),
+    path('getcategories/', getCategories,name="getcategories",),
+    path('addservice/', addServiceToCategory,name="addservicetocategory",),
+    path('getservice/', getServiceOfCategory,name="getServiceOfCategory",),
    
 ]
